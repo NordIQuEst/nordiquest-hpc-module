@@ -1,6 +1,6 @@
 # NordIQuEst-HPC module
 
-The module for running nordiquest projects on high-perfromance computers (HPC) that run SLURM
+The module for running quantum computing jobs on high-perfromance computers (HPC) that run [SLURM](https://slurm.schedmd.com/overview.html)
 
 ## Quick Start (ex3)
 
