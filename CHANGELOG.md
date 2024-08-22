@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
 ### Added
 
-- Added the `nordiquest-run` operation
+- Added the `nqrun` operation
 
 ### Changed
 

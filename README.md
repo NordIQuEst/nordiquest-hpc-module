@@ -116,27 +116,29 @@ result.get_counts()
 - Run an HPC-quantum-computer python script
 
 ```shell
-nordiquest-run \
+nqrun \
   # environment variables accessible to python script
   --env QAL9000_API_URL="https://api.qal9000.se" \
   --env QAL9000_SERVICE_NAME="ex3" \
   --env POLL_TIMEOUT=500 \
   # requirements file for python packages
   --requirements requirements.txt \
+  # python module you wish to load
+  --python python-3.7.4 \
   # srun-specific parameters
   -p armq -N 1 -n 256 --pty \
   quantum-example.py
 ```
 
-- Enter the API token when it requests for one and wait for the job complete
+- Enter the QAL 9000 API token when it requests for one and wait for the job complete
 
 ## API
 
-- `nordiquest-run` - an equivalent of [SLURM's `srun`](https://slurm.schedmd.com/srun.html)
+- `nqrun` - an equivalent of [SLURM's `srun`](https://slurm.schedmd.com/srun.html)
   - Extension of the API as [SLURM's `srun`](https://slurm.schedmd.com/srun.html)
   - `--env VARIABLE_NAME=VALUE` to pass environment variables to the python script e.g. `--env VAR1=value1 --env VAR2=value2`
   - `--requirements FILE_PATH` specifiying the `requirements.txt` containing the python dependencies the python script depends on
-- `nordiquest-batch` - an equivalent of [SLURM's `sbatch`](https://slurm.schedmd.com/sbatch.html) [COMING SOON]
+- `nqbatch` - an equivalent of [SLURM's `sbatch`](https://slurm.schedmd.com/sbatch.html) [COMING SOON]
 
 ## Authors
 
