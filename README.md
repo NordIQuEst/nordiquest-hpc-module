@@ -145,7 +145,7 @@ nqrun \
 - Clone the repository
 
 ```shell
-git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
+git clone --recurse-submodules https://github.com/NordIQuEst/nordiquest-hpc-module.git
 ```
 
 - Run the tests
