@@ -22,13 +22,6 @@ ssh ex3
 git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
 ```
 
-- Build the shell script into a module
-
-```shell
-cd nordiquest-hpc-module
-module sh-to-mod bash nordiquest.sh >nordiquest
-```
-
 - Install the module
 
 ```shell
@@ -155,6 +148,21 @@ git clone --recurse-submodules https://github.com/NordIQuEst/nordiquest-hpc-modu
 ```shell
 cd nordiquest-hpc-module
 ./test/bats/bin/bats test/test.bats
+```
+
+## How to Build
+
+- Clone the repository
+
+```shell
+git clone --recurse-submodules https://github.com/NordIQuEst/nordiquest-hpc-module.git
+```
+
+- Build the shell script into a module
+
+```shell
+cd nordiquest-hpc-module
+module sh-to-mod bash nordiquest.sh >nordiquest
 ```
 
 ## Authors

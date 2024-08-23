@@ -1,0 +1,96 @@
+#%Module
+set-function	nqrun {
+    env_vars=();
+    srun_args=();
+    requirements_file="";
+    py_script_path="";
+    bash_script="";
+    python_module="";
+    function help () 
+    { 
+        printf " Usage: nqrun [OPTIONS] [SRUN-OPTIONS] PYTHON_SCRIPT\n";
+        printf "\n";
+        printf " Run quantum computing jobs on SLURM-managed high-perfromance computers (HPC)\n";
+        printf " Note that it prompts for API token\n";
+        printf "\n";
+        printf " Options:\n";
+        printf "  %-20s\t%s\n" "--env list" "Set environment variables like Var1=Value1";
+        printf "  %-20s\t%s\n" "--requirements string" "Text file containing python dependencies in requirements.txt format";
+        printf "  %-20s\t%s\n" "--python string" "Python module to load with 'module load [python module]'";
+        printf "\n";
+        printf " srun options:\n";
+        srun --help
+    };
+    while [[ $# -gt 0 ]]; do
+        case $1 in 
+            --env)
+                env_vars+=("$2");
+                shift;
+                shift
+            ;;
+            --requirements)
+                requirements_file="$2";
+                shift;
+                shift
+            ;;
+            --python)
+                python_module="$2";
+                shift;
+                shift
+            ;;
+            -h | --help)
+                help;
+                return 0
+            ;;
+            *)
+                if [ -z "$2" ]; then
+                    py_script_path="$1";
+                else
+                    srun_args+=("$1");
+                fi;
+                shift
+            ;;
+        esac;
+    done;
+    if [ -z "$py_script_path" ]; then
+        echo "the last argument should be the path to the python script";
+        exit 1;
+    fi;
+    read -s -r -p "Enter a valid QAL 9000 API token: " qal9000_api_token;
+    if [ -n "$qal9000_api_token" ]; then
+        env_vars+=("QAL9000_API_TOKEN='$qal9000_api_token'");
+    else
+        echo "QAL 9000 API token cannot be empty";
+        exit 1;
+    fi;
+    bash_script="${py_script_path%%\.py}$(date +%s).sh";
+    function generate_bash_script () 
+    { 
+        echo "#!/bin/bash" >> $bash_script;
+        for env_var in "${env_vars[@]}";
+        do
+            echo "export $env_var;" >> $bash_script;
+        done;
+        if [ -n "$python_module" ]; then
+            echo "module load $python_module;" >> $bash_script;
+        fi;
+        echo "python -m venv nqenv;" >> $bash_script;
+        if [ -n "$requirements_file" ]; then
+            echo "nqenv/bin/python -m pip install -r $requirements_file;" >> $bash_script;
+        else
+            echo "nqenv/bin/python -m pip install tergite;" >> $bash_script;
+        fi;
+        echo "nqenv/bin/python $py_script_path;" >> $bash_script;
+        echo "rm -r nqenv;" >> $bash_script;
+        for env_pair in "${env_vars[@]}";
+        do
+            env_key="${env_pair%%=*}";
+            echo "unset $env_key;" >> $bash_script;
+        done
+    };
+    generate_bash_script;
+    chmod +x $bash_script;
+    echo "srun_args: ${srun_args[@]}";
+    srun "$(for arg in ${srun_args[@]}; do echo $arg; done)" $bash_script;
+    rm $bash_script;
+    return 0}
