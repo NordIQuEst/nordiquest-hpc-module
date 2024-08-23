@@ -1,4 +1,4 @@
-name: NordIQuEst HPC Module CI
+name: NordIQuEst-HPC module CI
 
 on:
   push:

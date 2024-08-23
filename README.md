@@ -1,6 +1,8 @@
 # NordIQuEst-HPC module
 
-The module for running quantum computing jobs on high-perfromance computers (HPC) that run [SLURM](https://slurm.schedmd.com/overview.html)
+[![NordIQuEst-HPC module CI](https://github.com/NordIQuEst/nordiquest-hpc-module/actions/workflows/ci.yml/badge.svg)](https://github.com/NordIQuEst/nordiquest-hpc-module/actions/workflows/ci.yml)
+
+The module for running quantum computing jobs on high-perfromance computers (HPC) that run [slurm](https://slurm.schedmd.com/overview.html)
 
 ## Quick Start (ex3)
 
@@ -134,11 +136,11 @@ nqrun \
 
 ## API
 
-- `nqrun` - an equivalent of [SLURM's `srun`](https://slurm.schedmd.com/srun.html)
-  - Extension of the API as [SLURM's `srun`](https://slurm.schedmd.com/srun.html)
+- `nqrun` - an equivalent of [slurm's `srun`](https://slurm.schedmd.com/srun.html)
+  - Extension of the API as [slurm's `srun`](https://slurm.schedmd.com/srun.html)
   - `--env VARIABLE_NAME=VALUE` to pass environment variables to the python script e.g. `--env VAR1=value1 --env VAR2=value2`
   - `--requirements FILE_PATH` specifiying the `requirements.txt` containing the python dependencies the python script depends on
-- `nqbatch` - an equivalent of [SLURM's `sbatch`](https://slurm.schedmd.com/sbatch.html) [COMING SOON]
+- `nqbatch` - an equivalent of [slurm's `sbatch`](https://slurm.schedmd.com/sbatch.html) [COMING SOON]
 
 ## How to Test
 
