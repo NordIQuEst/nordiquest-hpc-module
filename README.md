@@ -41,7 +41,7 @@ module use --append /global/D1/homes/YOUR_USERNAME/modulefiles
 module load nordiquest
 ```
 
-- Create (or upload) a sample script: `quantum_example.py`.
+- Create (or upload) a sample script: `quantum_example.py` in your ex3 data folder.
 
 ```python
 # quantum_example.py
@@ -123,8 +123,10 @@ nqrun \
   --requirements requirements.txt \
   --python python-3.7.4 \
   -p armq -N 1 -n 256 --pty \
-  quantum_example.py
+  /global/D1/homes/YOUR_USERNAME/quantum_example.py
 ```
+
+**Dont forget to update `YOUR_USERNAME` to your ex3 username**
 
 - Enter the QAL 9000 API token when it requests for one and wait for the job complete
 
