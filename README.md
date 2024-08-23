@@ -25,6 +25,7 @@ git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
 - Install the module
 
 ```shell
+cd nordiquest-hpc-module
 mkdir -p /global/D1/homes/YOUR_USERNAME/modulefiles
 cp nordiquest /global/D1/homes/YOUR_USERNAME/modulefiles/nordiquest
 module use --append /global/D1/homes/YOUR_USERNAME/modulefiles
