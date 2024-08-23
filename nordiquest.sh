@@ -67,7 +67,7 @@ function nqrun () {
   # Docs
   function help()
   {
-    printf "Usage: nqrun [OPTIONS] [SRUN-OPTIONS] PYTHON_SCRIPT\n"
+    printf " Usage: nqrun [OPTIONS] [SRUN-OPTIONS] PYTHON_SCRIPT\n"
     printf "\n"
     printf " Run quantum computing jobs on SLURM-managed high-perfromance computers (HPC)\n"
     printf " Note that it prompts for API token\n"
@@ -77,8 +77,13 @@ function nqrun () {
     printf "  %-20s\t%s\n" "--requirements string" "Text file containing python dependencies in requirements.txt format"
     printf "  %-20s\t%s\n" "--python string" "Python module to load with 'module load [python module]'"
     printf "\n"
-    printf "  Plus options from srun"
-    srun --help
+
+    if [ -n "$(command -v srun  &> /dev/null)" ]; then
+      printf  " srun options:\n"
+      srun --help
+    else
+      printf "  When srun is available, srun options can also be passed."
+    fi
   }
   
   # extract args
@@ -101,7 +106,7 @@ function nqrun () {
         ;;
       -h|--help)
         help
-        exit 0
+        return 0
         ;;
       -*|--*)
         srun_args+="$1"
@@ -183,4 +188,6 @@ function nqrun () {
 
   # deleting bash script after?
   rm $bash_script;
+
+  return 0;
 }

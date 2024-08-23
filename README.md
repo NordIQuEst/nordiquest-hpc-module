@@ -45,10 +45,10 @@ module use --append /global/D1/homes/YOUR_USERNAME/modulefiles
 module load nordiquest
 ```
 
-- Create (or upload) a sample script: `quantum-example.py`.
+- Create (or upload) a sample script: `quantum_example.py`.
 
 ```python
-# quantum-example.py
+# quantum_example.py
 """A sample script doing a very simple quantum operation"""
 import time
 import os
@@ -139,6 +139,21 @@ nqrun \
   - `--env VARIABLE_NAME=VALUE` to pass environment variables to the python script e.g. `--env VAR1=value1 --env VAR2=value2`
   - `--requirements FILE_PATH` specifiying the `requirements.txt` containing the python dependencies the python script depends on
 - `nqbatch` - an equivalent of [SLURM's `sbatch`](https://slurm.schedmd.com/sbatch.html) [COMING SOON]
+
+## How to Test
+
+- Clone the repository
+
+```shell
+git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
+```
+
+- Run the tests
+
+```shell
+cd nordiquest-hpc-module
+./test/bats/bin/bats test/test.bats
+```
 
 ## Authors
 

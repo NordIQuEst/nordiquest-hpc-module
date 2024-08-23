@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 ### Added
 
 - Added the `nqrun` operation
+- Added BATS-enabled automated testing
 
 ### Changed
 
