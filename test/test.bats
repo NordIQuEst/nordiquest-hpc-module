@@ -3,14 +3,7 @@
 setup() {
   load 'test_helper/bats-support/load'
   load 'test_helper/bats-assert/load'
-
-  # get the containing directory of this file
-  # use $BATS_TEST_FILENAME instead of ${BASH_SOURCE[0]} or $0,
-  # as those will point to the bats executable's location or the preprocessed file respectively
-  DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
-
-  # make the functions in nordiquest script available to tests
-  load "$DIR/../nordiquest.sh"
+  load 'test_helper/utils.sh'
 }
 
 teardown() {
@@ -18,6 +11,8 @@ teardown() {
 }
 
 @test "can print help" {
+  load_nordiquest_sh --mock 'test_helper/mocks/srun.sh';
+
   run nqrun --help;
 
   assert_output --partial "\
@@ -31,6 +26,6 @@ teardown() {
   $(printf '%-20s\t%s\n' '--requirements string' 'Text file containing python dependencies in requirements.txt format')
   $(printf '%-20s\t%s\n' '--python string' $'Python module to load with \'module load [python module]\'')
 
-  When srun is available, srun options can also be passed."
-
+ srun options:
+ Some random stuff from srun"
 }

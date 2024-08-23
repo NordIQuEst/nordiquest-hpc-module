@@ -77,13 +77,8 @@ function nqrun () {
     printf "  %-20s\t%s\n" "--requirements string" "Text file containing python dependencies in requirements.txt format"
     printf "  %-20s\t%s\n" "--python string" "Python module to load with 'module load [python module]'"
     printf "\n"
-
-    if [ -n "$(command -v srun  &> /dev/null)" ]; then
-      printf  " srun options:\n"
-      srun --help
-    else
-      printf "  When srun is available, srun options can also be passed."
-    fi
+    printf  " srun options:\n"
+    srun --help
   }
   
   # extract args
