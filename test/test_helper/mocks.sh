@@ -12,8 +12,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+# A collection of mocks
+
 # A mock of slurm's srun command: https://slurm.schedmd.com/srun.html
 function srun () {
+  bash_script=""
   # extract args
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -21,6 +24,20 @@ function srun () {
         echo " Some random stuff from srun";
         return 0
         ;;
+      *)
+        if [ -z "$2" ]; then 
+          # current element is last thus it is the script file
+          bash_script="$1";
+        else 
+          printf "%s " "$1"
+        fi
+        shift
+        ;;
     esac
   done
+
+  if [ -n "$bash_script" ]; then 
+    # run the bash script wrapped around the python script
+    $bash_script;
+  fi
 }

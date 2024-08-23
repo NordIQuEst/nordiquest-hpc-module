@@ -68,7 +68,6 @@ API_URL = os.environ.get("QAL9000_API_URL", default="https://api.qal9000.se")
 BACKEND_NAME = "loke"
 # the application token for logging in
 API_TOKEN = os.environ.get("QAL9000_API_TOKEN")
-# API_TOKEN = "E2Q6qm7_JrzIJ_YwtWW9vhFrhpVtAcoeoDo26Pb5XPU"
 # the name of this service. For your own bookkeeping.
 SERVICE_NAME = os.environ.get("QAL9000_SERVICE_NAME", default="local")
 # the timeout in seconds for how long to keep checking for results
@@ -118,18 +117,19 @@ result.get_counts()
 - Run an HPC-quantum-computer python script
 
 ```shell
+# options:
+# --env: environment variables accessible to python script
+# --requirements: requirements file for python packages
+# --python: python module you wish to load
+# and other srun-specific parameters e.g. -p, -N etc.
 nqrun \
-  # environment variables accessible to python script
   --env QAL9000_API_URL="https://api.qal9000.se" \
   --env QAL9000_SERVICE_NAME="ex3" \
   --env POLL_TIMEOUT=500 \
-  # requirements file for python packages
   --requirements requirements.txt \
-  # python module you wish to load
   --python python-3.7.4 \
-  # srun-specific parameters
   -p armq -N 1 -n 256 --pty \
-  quantum-example.py
+  quantum_example.py
 ```
 
 - Enter the QAL 9000 API token when it requests for one and wait for the job complete

@@ -85,7 +85,7 @@ function nqrun () {
   while [[ $# -gt 0 ]]; do
     case $1 in
       --env)
-        env_vars+="$2"
+        env_vars+=("$2")
         shift # past argument
         shift # past value
         ;;
@@ -103,16 +103,15 @@ function nqrun () {
         help
         return 0
         ;;
-      -*|--*)
-        srun_args+="$1"
-        srun_args+="$2"
-        shift # past argument
-        shift # past value
-        ;;
       *)
-        py_script_path="$2"
-        shift # past argument
-        shift # past value
+        if [ -z "$2" ]; then 
+          # current element is last thus it is the script file
+          py_script_path="$1";
+        else 
+          # srun args and values can be anything
+          srun_args+=("$1");
+        fi
+        shift
         ;;
     esac
   done
@@ -126,7 +125,7 @@ function nqrun () {
   # Ask for QAL 9000 API token
   read -s -r -p "Enter a valid QAL 9000 API token: " qal9000_api_token
   if [ -n "$qal9000_api_token" ]; then
-    env_vars+="QAL9000_API_TOKEN='$qal9000_api_token'";
+    env_vars+=("QAL9000_API_TOKEN='$qal9000_api_token'");
   else
     echo "QAL 9000 API token cannot be empty";
     exit 1;
@@ -139,6 +138,10 @@ function nqrun () {
   function generate_bash_script () {
     # Set up
     # -----
+
+    # set up the shebang
+    echo "#!/bin/bash" >> $bash_script;
+
     # setting environment variables
     for env_var in "${env_vars[@]}"; do
       echo "export $env_var;" >> $bash_script;
@@ -149,25 +152,23 @@ function nqrun () {
       echo "module load $python_module;" >> $bash_script;
     fi
 
-    # activating virtual environment
+    # creating virtual environment
     echo "python -m venv nqenv;" >> $bash_script;
-    echo "source nqenv/bin/activate;" >> $bash_script;
 
     # installing packages in python virtual environment
     if [ -n "$requirements_file" ]; then
-      echo "pip install -r $requirements_file;" >> $bash_script;
+      echo "nqenv/bin/python -m pip install -r $requirements_file;" >> $bash_script;
     else
       # install the default required packages
-      echo "pip install tergite;" >> $bash_script;
+      echo "nqenv/bin/python -m pip install tergite;" >> $bash_script;
     fi
 
     # running python script
-    echo "python $py_script_path;" >> $bash_script;
+    echo "nqenv/bin/python $py_script_path;" >> $bash_script;
 
     # Cleanup
     # ------
-    # deactivating and delete virtual environment
-    echo "deactivate;" >> $bash_script;
+    # delete virtual environment
     echo "rm -r nqenv;" >> $bash_script;
 
     # unsetting environment variables
@@ -179,6 +180,8 @@ function nqrun () {
 
   # send bash script to compute node
   generate_bash_script;
+  chmod +x $bash_script;
+  echo "srun_args: ${srun_args[@]}"
   srun "$(for arg in ${srun_args[@]}; do echo $arg; done)" $bash_script;
 
   # deleting bash script after?
