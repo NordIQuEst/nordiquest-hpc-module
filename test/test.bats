@@ -3,6 +3,7 @@
 setup() {
   load 'test_helper/bats-support/load'
   load 'test_helper/bats-assert/load'
+  load 'test_helper/bats-file/load'
   load 'test_helper/mocks.sh'
 
   # make the functions in nordiquest script available to tests
@@ -34,6 +35,7 @@ get_tests_folder() {
   $(printf '%-20s\t%s\n' '--requirements string' 'Text file containing python dependencies in requirements.txt format')
   $(printf '%-20s\t%s\n' '--python string' $'Python module to load with \'module load [python module]\'')
   $(printf '%-20s\t%s\n' '--source-code-dir string' 'the folder that stores source code on login node; default=D1')
+  $(printf '%-20s\t%s\n' '--virtual-env string' 'the folder containing the virtual env to create if not exists and use for this job')
 
  srun options:
  Some random stuff from srun"
@@ -61,7 +63,10 @@ get_tests_folder() {
 QAL9000_API_URL: https://example.se
 QAL9000_API_TOKEN: $api_token
 QAL9000_SERVICE_NAME: lami
-POLL_TIMEOUT: 500"
+POLL_TIMEOUT: 500";
+
+  # deletes the virtual env after running
+  assert_file_not_exist "D1/nqenv/bin/python";
 }
 
 @test "can run python script in different source code dir" {
@@ -88,7 +93,43 @@ POLL_TIMEOUT: 500"
 QAL9000_API_URL: https://example.se
 QAL9000_API_TOKEN: $api_token
 QAL9000_SERVICE_NAME: lami
-POLL_TIMEOUT: 500"
+POLL_TIMEOUT: 500";
+
+  # deletes the virtual env after running
+  assert_file_not_exist "$source_code_dir/nqenv/bin/python";
+}
+
+@test "can run python script with different virtual env" {
+  py_script="$(get_tests_folder)/test_helper/fixtures/sample.py";
+  requirements_txt="$(get_tests_folder)/test_helper/fixtures/requirements.txt";
+  api_token="some-token";
+  venv_dir="D1/newenv"
+  source_code_dir="D2"
+  
+  run nqrun --env QAL9000_API_URL="https://example.se"\
+   --env QAL9000_SERVICE_NAME="lami"\
+   --env POLL_TIMEOUT=500\
+   --requirements $requirements_txt\
+   --virtual-env $venv_dir\
+   --source-code-dir $source_code_dir\
+   --python python-3.7.4\
+   -p armq -N 1 -n 256 --pty $py_script <<< "$api_token";
+
+  assert_output --partial "python-3.7.4 module loaded";
+
+  assert_output --partial "$venv_dir/bin/python";
+  refute_output --partial "D1/nqenv/bin/python";
+  refute_output --partial "$source_code_dir";
+
+  assert_output --partial "-p armq -N 1 -n 256 --pty";
+
+  assert_output --partial "\
+QAL9000_API_URL: https://example.se
+QAL9000_API_TOKEN: $api_token
+QAL9000_SERVICE_NAME: lami
+POLL_TIMEOUT: 500";
+
+  assert_file_exist "$venv_dir/bin/python"
 }
 
 @test "nqrun errors when no empty api token is passed" {
@@ -102,7 +143,10 @@ POLL_TIMEOUT: 500"
    --python python-3.7.4\
    -p armq -N 1 -n 256 --pty $py_script <<< "";
 
-  assert_output "QAL 9000 API token cannot be empty"
+  assert_output "QAL 9000 API token cannot be empty";
+
+  # deletes the virtual env after running
+  assert_file_not_exist "D1/nqenv/bin/python";
 }
 
 @test "nqrun errors when no script is passed" {
@@ -112,6 +156,9 @@ POLL_TIMEOUT: 500"
   run nqrun <<< "";
 
   assert_output "the last argument should be the path to the python script"
+
+  # deletes the virtual env after running
+  assert_file_not_exist "D1/nqenv/bin/python";
 }
 
 @test "can run python script without requirements file" {
@@ -137,7 +184,10 @@ POLL_TIMEOUT: 500"
 QAL9000_API_URL: https://example.se
 QAL9000_API_TOKEN: $api_token
 QAL9000_SERVICE_NAME: look
-POLL_TIMEOUT: 600"
+POLL_TIMEOUT: 600";
+
+  # deletes the virtual env after running
+  assert_file_not_exist "D1/nqenv/bin/python";
 }
 
 @test "can run python script without python module" {
@@ -163,5 +213,8 @@ POLL_TIMEOUT: 600"
 QAL9000_API_URL: https://example.com
 QAL9000_API_TOKEN: $api_token
 QAL9000_SERVICE_NAME: lami
-POLL_TIMEOUT: 5400"
+POLL_TIMEOUT: 5400";
+
+  # deletes the virtual env after running
+  assert_file_not_exist "D1/nqenv/bin/python";
 }

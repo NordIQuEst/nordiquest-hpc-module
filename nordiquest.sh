@@ -38,6 +38,8 @@
 # - env: pair of environment name and value
 # - requirements: the path to the requirements.txt file containing dependencies for python script
 # - python: the python module to use
+# - source-code-dir: the folder that stores source code on login node; default=D1
+# - virtual-env: the folder containing the virtual environment in case one wishes to reuse the virtual env on other jobs
 # - .... srun-specific params
 #
 # Required Args
@@ -64,6 +66,8 @@ function nqrun () {
   bash_script=""
   python_module=""
   source_code_dir="D1"
+  python_env=""
+  should_delete_venv=true;
 
   # Docs
   function help()
@@ -78,6 +82,7 @@ function nqrun () {
     printf "  %-20s\t%s\n" "--requirements string" "Text file containing python dependencies in requirements.txt format"
     printf "  %-20s\t%s\n" "--python string" "Python module to load with 'module load [python module]'"
     printf "  %-20s\t%s\n" "--source-code-dir string" "the folder that stores source code on login node; default=D1"
+    printf "  %-20s\t%s\n" "--virtual-env string" "the folder containing the virtual env to create if not exists and use for this job"
     printf "\n"
     printf  " srun options:\n"
     srun --help
@@ -103,6 +108,12 @@ function nqrun () {
         ;;
       --source-code-dir)
         source_code_dir="$2"
+        shift # past argument
+        shift # past value
+        ;;
+      --virtual-env)
+        python_env="$2"
+        should_delete_venv=false
         shift # past argument
         shift # past value
         ;;
@@ -140,7 +151,9 @@ function nqrun () {
 
   # important variables
   # ----
-  python_env="$source_code_dir/nqenv";
+  if [ -z "$python_env" ]; then 
+    python_env="$source_code_dir/nqenv";
+  fi
   # path to bash script wrapper around the python script
   bash_script="${py_script_path%%\.py}$(date +%s).sh";
 
@@ -188,7 +201,10 @@ function nqrun () {
   # Cleanup
   function cleanup () {
     # delete virtual environment
-    rm -r "$python_env";
+    if $should_delete_venv; then
+      rm -r "$python_env";
+      echo ""
+    fi
     
     # deleting bash script after?
     rm $bash_script;

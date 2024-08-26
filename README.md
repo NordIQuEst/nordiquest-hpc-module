@@ -136,6 +136,9 @@ nqrun \
   - Extension of the API as [slurm's `srun`](https://slurm.schedmd.com/srun.html)
   - `--env VARIABLE_NAME=VALUE` to pass environment variables to the python script e.g. `--env VAR1=value1 --env VAR2=value2`
   - `--requirements FILE_PATH` specifiying the `requirements.txt` containing the python dependencies the python script depends on
+  - `--python MODULE_NAME` specifying the python module to use
+  - `source-code-dir FILE_PATH` specifying the folder that stores source code on login node; default=D1
+  - `virtual-env FILE_PATH` specifying the folder containing the virtual environment in case one wishes to reuse the virtual env on other jobs
 - `nqbatch` - an equivalent of [slurm's `sbatch`](https://slurm.schedmd.com/sbatch.html) [COMING SOON]
 
 ## How to Test
