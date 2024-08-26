@@ -63,6 +63,7 @@ function nqrun () {
   py_script_path=""
   bash_script=""
   python_module=""
+  source_code_dir="D1"
 
   # Docs
   function help()
@@ -76,6 +77,7 @@ function nqrun () {
     printf "  %-20s\t%s\n" "--env list" "Set environment variables like Var1=Value1"
     printf "  %-20s\t%s\n" "--requirements string" "Text file containing python dependencies in requirements.txt format"
     printf "  %-20s\t%s\n" "--python string" "Python module to load with 'module load [python module]'"
+    printf "  %-20s\t%s\n" "--source-code-dir string" "the folder that stores source code on login node; default=D1"
     printf "\n"
     printf  " srun options:\n"
     srun --help
@@ -96,6 +98,11 @@ function nqrun () {
         ;;
       --python)
         python_module="$2"
+        shift # past argument
+        shift # past value
+        ;;
+      --source-code-dir)
+        source_code_dir="$2"
         shift # past argument
         shift # past value
         ;;
@@ -131,14 +138,35 @@ function nqrun () {
     exit 1;
   fi
 
+  # important variables
+  # ----
+  python_env="$source_code_dir/nqenv";
   # path to bash script wrapper around the python script
   bash_script="${py_script_path%%\.py}$(date +%s).sh";
 
+  # prepare the python environment in which sciript is
+  function prepare_python_env () {
+    # conditionally loading python module
+    if [ -n "$python_module" ]; then
+      module load $python_module;
+    fi
+
+    # creating and activate virtual environment
+    python -m venv "$python_env";
+    source "$python_env/bin/activate";
+
+    # installing packages in python virtual environment
+    if [ -n "$requirements_file" ]; then
+      pip install -r $requirements_file;
+    else
+      # install the default required packages
+      pip install tergite;
+    fi
+
+  }
+
   # generate the bash script to run in the compute-node
   function generate_bash_script () {
-    # Set up
-    # -----
-
     # set up the shebang
     echo "#!/bin/bash" >> $bash_script;
 
@@ -147,29 +175,8 @@ function nqrun () {
       echo "export $env_var;" >> $bash_script;
     done
 
-    # conditionally loading python module
-    if [ -n "$python_module" ]; then
-      echo "module load $python_module;" >> $bash_script;
-    fi
-
-    # creating virtual environment
-    echo "python -m venv nqenv;" >> $bash_script;
-
-    # installing packages in python virtual environment
-    if [ -n "$requirements_file" ]; then
-      echo "nqenv/bin/python -m pip install -r $requirements_file;" >> $bash_script;
-    else
-      # install the default required packages
-      echo "nqenv/bin/python -m pip install tergite;" >> $bash_script;
-    fi
-
     # running python script
-    echo "nqenv/bin/python $py_script_path;" >> $bash_script;
-
-    # Cleanup
-    # ------
-    # delete virtual environment
-    echo "rm -r nqenv;" >> $bash_script;
+    echo "python $py_script_path;" >> $bash_script;
 
     # unsetting environment variables
     for env_pair in "${env_vars[@]}"; do
@@ -178,14 +185,21 @@ function nqrun () {
     done
   }
 
-  # send bash script to compute node
+  # Cleanup
+  function cleanup () {
+    # delete virtual environment
+    rm -r "$python_env";
+    
+    # deleting bash script after?
+    rm $bash_script;
+  }
+
+  # Run
+  prepare_python_env;
   generate_bash_script;
   chmod +x $bash_script;
-  echo "srun_args: ${srun_args[@]}"
-  srun "$(for arg in ${srun_args[@]}; do echo $arg; done)" $bash_script;
-
-  # deleting bash script after?
-  rm $bash_script;
+  srun $(for arg in ${srun_args[@]}; do printf "%s " "$arg"; done) $bash_script;
+  cleanup;
 
   return 0;
 }

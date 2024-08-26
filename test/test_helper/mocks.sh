@@ -41,3 +41,17 @@ function srun () {
     $bash_script;
   fi
 }
+
+
+# A mock of the https://modules.readthedocs.io/en/latest/ modules utility
+function module () {
+  # extract args
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      load)
+        echo "$2 module loaded";
+        return 0
+        ;;
+    esac
+  done
+}

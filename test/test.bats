@@ -33,6 +33,7 @@ get_tests_folder() {
   $(printf '%-20s\t%s\n' '--env list' 'Set environment variables like Var1=Value1')
   $(printf '%-20s\t%s\n' '--requirements string' 'Text file containing python dependencies in requirements.txt format')
   $(printf '%-20s\t%s\n' '--python string' $'Python module to load with \'module load [python module]\'')
+  $(printf '%-20s\t%s\n' '--source-code-dir string' 'the folder that stores source code on login node; default=D1')
 
  srun options:
  Some random stuff from srun"
@@ -47,12 +48,39 @@ get_tests_folder() {
    --env QAL9000_SERVICE_NAME="lami"\
    --env POLL_TIMEOUT=500\
    --requirements $requirements_txt\
+   --python python-3.11\
+   -p armq -N 1 -n 256 --pty $py_script <<< "$api_token";
+
+  assert_output --partial "python-3.11 module loaded";
+
+  assert_output --partial "D1/nqenv/bin/python";
+
+  assert_output --partial "-p armq -N 1 -n 256 --pty";
+
+  assert_output --partial "\
+QAL9000_API_URL: https://example.se
+QAL9000_API_TOKEN: $api_token
+QAL9000_SERVICE_NAME: lami
+POLL_TIMEOUT: 500"
+}
+
+@test "can run python script in different source code dir" {
+  py_script="$(get_tests_folder)/test_helper/fixtures/sample.py";
+  requirements_txt="$(get_tests_folder)/test_helper/fixtures/requirements.txt";
+  api_token="some-token";
+  source_code_dir="D2/etc"
+  
+  run nqrun --env QAL9000_API_URL="https://example.se"\
+   --env QAL9000_SERVICE_NAME="lami"\
+   --env POLL_TIMEOUT=500\
+   --requirements $requirements_txt\
+   --source-code-dir $source_code_dir\
    --python python-3.7.4\
    -p armq -N 1 -n 256 --pty $py_script <<< "$api_token";
 
-  # FIXME: Add check for module load
+  assert_output --partial "python-3.7.4 module loaded";
 
-  assert_output --partial "nqenv/bin/python";
+  assert_output --partial "$source_code_dir/nqenv/bin/python";
 
   assert_output --partial "-p armq -N 1 -n 256 --pty";
 
@@ -95,11 +123,11 @@ POLL_TIMEOUT: 500"
     --env QAL9000_API_URL="https://example.se" \
     --env QAL9000_SERVICE_NAME="look" \
     --env POLL_TIMEOUT=600 \
-    --python python-3.7.4 \
+    --python python-3.12 \
     -p armq -N 2 -n 256 \
     $py_script <<< "$api_token";
 
-  # FIXME: Add check for module load
+  assert_output --partial "python-3.12 module loaded";
 
   assert_output --partial "nqenv/bin/python";
 
@@ -125,9 +153,9 @@ POLL_TIMEOUT: 600"
     -p armq -N 1 -n 512 --pty \
     $py_script <<< "$api_token";
 
-  # FIXME: Add check for module load not being called
+  refute_output --partial "python-3.7.4 module loaded";
 
-  assert_output --partial "nqenv/bin/python";
+  assert_output --partial "D1/nqenv/bin/python";
 
   assert_output --partial "-p armq -N 1 -n 512 --pty";
 
