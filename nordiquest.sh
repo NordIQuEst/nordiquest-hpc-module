@@ -60,6 +60,7 @@
 function nqrun () {
   # variables
   env_vars=()
+  quantum_computers=()
   srun_args=()
   requirements_file=""
   py_script_path=""
@@ -67,15 +68,16 @@ function nqrun () {
   python_module=""
   source_code_dir="D1"
   python_env=""
-  should_delete_venv=true;
+  should_delete_venv=true
 
   # Docs
   function help()
   {
     printf " Usage: nqrun [OPTIONS] [SRUN-OPTIONS] PYTHON_SCRIPT\n"
     printf "\n"
-    printf " Run quantum computing jobs on SLURM-managed high-perfromance computers (HPC)\n"
-    printf " Note that it prompts for API token\n"
+    printf " Run quantum computing jobs on SLURM-managed high-perfromance computers (HPC).\n"
+    printf " Note that it prompts for an API token for each quantum computer.\n"
+    printf " The API token is available in the environment as '{QUANTUM_COMPUTER_NAME}_API_TOKEN' (upper case).\n"
     printf "\n"
     printf " Options:\n"
     printf "  %-20s\t%s\n" "--env list" "Set environment variables like Var1=Value1"
@@ -83,6 +85,7 @@ function nqrun () {
     printf "  %-20s\t%s\n" "--python string" "Python module to load with 'module load [python module]'"
     printf "  %-20s\t%s\n" "--source-code-dir string" "the folder that stores source code on login node; default=D1"
     printf "  %-20s\t%s\n" "--virtual-env string" "the folder containing the virtual env to create if not exists and use for this job"
+    printf "  %-20s\t%s\n" "-qc|--quantum-computer list" "Set the quantum computers to connect to e.g. qal9000,helmi"
     printf "\n"
     printf  " srun options:\n"
     srun --help
@@ -93,6 +96,11 @@ function nqrun () {
     case $1 in
       --env)
         env_vars+=("$2")
+        shift # past argument
+        shift # past value
+        ;;
+      -qc|--quantum-computer)
+        quantum_computers+=("$2")
         shift # past argument
         shift # past value
         ;;
@@ -135,19 +143,31 @@ function nqrun () {
   done
 
   # check required variables
+  if [ ${#quantum_computers[@]} -eq 0 ]; then 
+    echo "at least one quantum computer e.g. qal9000 should be specified";
+    exit 1;
+  fi
+
   if [ -z "$py_script_path" ]; then
     echo "the last argument should be the path to the python script";
     exit 1;
   fi
 
-  # Ask for QAL 9000 API token
-  read -s -r -p "Enter a valid QAL 9000 API token: " qal9000_api_token
-  if [ -n "$qal9000_api_token" ]; then
-    env_vars+=("QAL9000_API_TOKEN='$qal9000_api_token'");
-  else
-    echo "QAL 9000 API token cannot be empty";
-    exit 1;
-  fi
+  # Ask for API tokens
+  for qc in  "${quantum_computers[@]}"; do 
+    # change the computer name to upper case
+    comp_name=$(echo $qc | tr '[:lower:]' '[:upper:]')
+    env_var="${comp_name}_API_TOKEN";
+
+    read -s -r -p "Enter a valid $comp_name API token: " api_token
+    if [ -n "$api_token" ]; then
+      env_vars+=("$env_var='$api_token'");
+    else
+      echo "$comp_name API token cannot be empty";
+      exit 1;
+    fi
+    printf "\n"
+  done
 
   # important variables
   # ----
@@ -173,7 +193,7 @@ function nqrun () {
       pip install -r $requirements_file;
     else
       # install the default required packages
-      pip install tergite;
+      pip install tergite qiskit-iqm qiskit;
     fi
 
   }

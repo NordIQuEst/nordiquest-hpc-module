@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
 - Added the `nqrun` operation
 - Added BATS-enabled automated testing
+- Added access to QAL 9000 via tergite SDK
+- Added access to Helmi via qiskit-iqm
 
 ### Changed
 

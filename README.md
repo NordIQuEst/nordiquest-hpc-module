@@ -111,19 +111,16 @@ result.get_counts()
 - Run an HPC-quantum-computer python script
 
 ```shell
-# options:
-# --env: environment variables accessible to python script
-# --requirements: requirements file for python packages
-# --python: python module you wish to load
-# and other srun-specific parameters e.g. -p, -N etc.
 nqrun \
   --env QAL9000_API_URL="https://api.qal9000.se" \
   --env QAL9000_SERVICE_NAME="ex3" \
   --env POLL_TIMEOUT=500 \
+  --quantum-computer qal9000 \
+  --virtual-env D1/newenv \
   --requirements requirements.txt \
   --python python-3.7.4 \
   -p armq -N 1 -n 256 --pty \
-  /global/D1/homes/YOUR_USERNAME/quantum_example.py
+  quantum_example.py
 ```
 
 **Dont forget to update `YOUR_USERNAME` to your ex3 username**
@@ -137,8 +134,9 @@ nqrun \
   - `--env VARIABLE_NAME=VALUE` to pass environment variables to the python script e.g. `--env VAR1=value1 --env VAR2=value2`
   - `--requirements FILE_PATH` specifiying the `requirements.txt` containing the python dependencies the python script depends on
   - `--python MODULE_NAME` specifying the python module to use
-  - `source-code-dir FILE_PATH` specifying the folder that stores source code on login node; default=D1
-  - `virtual-env FILE_PATH` specifying the folder containing the virtual environment in case one wishes to reuse the virtual env on other jobs
+  - `--source-code-dir FILE_PATH` specifying the folder that stores source code on login node; default=D1
+  - `--virtual-env FILE_PATH` specifying the folder containing the virtual environment in case one wishes to reuse the virtual env on other jobs
+  - `-qc|--quantum-computer NAME` specifying the quantum computers to connect to e.g. `--quantum-computer qal9000 --quantum-computer helmi`
 - `nqbatch` - an equivalent of [slurm's `sbatch`](https://slurm.schedmd.com/sbatch.html) [COMING SOON]
 
 ## How to Test
