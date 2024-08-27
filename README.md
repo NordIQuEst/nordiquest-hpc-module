@@ -187,4 +187,4 @@ To view the changelog for each version, have a look at the [CHANGELOG.md](./CHAN
 ## Acknowledgements
 
 - This work was sponsored by [Nordic e-Infrastructure Collaboration (NeIC)](https://neic.no) and [NordForsk](https://www.nordforsk.org/sv) under the [NordIQuEst](https://neic.no/nordiquest/) project
-- This work was initially created at [Chalmers Next Labs AB](https://chalmersnextlabs.se) in collaboration with Chalmers Technical University under the [NordIQuEst](https://neic.no/nordiquest/) project.
+- This work was initially created at [Chalmers Next Labs AB](https://chalmersnextlabs.se) in collaboration with [Chalmers University of Technology](https://www.chalmers.se/) under the [NordIQuEst](https://neic.no/nordiquest/) project.
