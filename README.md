@@ -39,6 +39,8 @@ module use --append /global/D1/homes/$(whoami)/modulefiles
 module load nordiquest
 ```
 
+### Running on QAL9000
+
 - Create (or upload) a sample script: `quantum_example.py` in your ex3 data folder.
 
 ```python
@@ -122,6 +124,21 @@ nqrun \
 ```
 
 - Enter the QAL 9000 API token when it requests for one and wait for the job complete
+
+### Running on Helmi
+
+To run on VTT's 5-qubit quantum computer called "Helmi", you can run the following command:
+
+```shell
+nqrun \
+  --env QX_URL="https://qc.vtt.fi/qx/api/devices/helmi" \
+  --quantum-computer helmi \
+  --virtual-env D1/newenv \
+  --requirements examples/helmi_requirements.txt \
+  --python python-3.7.4 \
+  -p armq -N 1 -n 256 --pty \
+  examples/helmi_example.py
+```
 
 ## API
 
