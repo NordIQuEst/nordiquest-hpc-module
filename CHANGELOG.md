@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
 ### Changed
 - Updated `README.md` to contain example on how to run on Helmi
+- `nordiquest` script installs different Python packages based on selected quantum computer when no requirements file has been passed
 
 ### Fixed
 
