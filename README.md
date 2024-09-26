@@ -108,7 +108,7 @@ while result is None:
 result.get_counts()
 ```
 
-- Run an HPC-quantum-computer python script
+- Run an HPC-quantum-computer Python script
 
 ```shell
 nqrun \
@@ -125,6 +125,8 @@ nqrun \
 
 - Enter the QAL 9000 API token when it requests for one and wait for the job complete
 
+**Note:** The requirements path is optional. The module will select the right qiskit version based on the selected quantum computer.
+
 ### Running on Helmi
 
 To run on VTT's 5-qubit quantum computer called "Helmi", you can run the following command:
@@ -134,11 +136,11 @@ nqrun \
   --env QX_URL="https://qc.vtt.fi/qx/api/devices/helmi" \
   --quantum-computer helmi \
   --virtual-env D1/newenv \
-  --requirements examples/helmi_requirements.txt \
-  --python python-3.7.4 \
+  --python python-3.8.16 \
   -p armq -N 1 -n 256 --pty \
   examples/helmi_example.py
 ```
+
 
 ## API
 
