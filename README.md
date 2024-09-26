@@ -26,14 +26,12 @@ git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
 
 ```shell
 cd nordiquest-hpc-module
-mkdir -p /global/D1/homes/YOUR_USERNAME/modulefiles
-cp nordiquest /global/D1/homes/YOUR_USERNAME/modulefiles/nordiquest
-module use --append /global/D1/homes/YOUR_USERNAME/modulefiles
+mkdir -p /global/D1/homes/$(whoami)/modulefiles
+cp nordiquest /global/D1/homes/$(whoami)/modulefiles/nordiquest
+module use --append /global/D1/homes/$(whoami)/modulefiles
 ```
 
-**Note: Replace `YOUR_USERNAME` with your username**
-
-**One other option is to install the module in a projects folder so that it is accessible for multiple users. Contact <ex3-helpdesk@simula.no>**
+**Note: One other option is to install the module in a projects folder so that it is accessible for multiple users. Contact <ex3-helpdesk@simula.no>**
 
 - Load the module
 
@@ -122,8 +120,6 @@ nqrun \
   -p armq -N 1 -n 256 --pty \
   quantum_example.py
 ```
-
-**Dont forget to update `YOUR_USERNAME` to your ex3 username**
 
 - Enter the QAL 9000 API token when it requests for one and wait for the job complete
 
