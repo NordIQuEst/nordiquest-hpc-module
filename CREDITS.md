@@ -4,7 +4,11 @@
 
 The first version of nordiquest-hpc-module
 
-## Nicolla Lo Gullo
+## [Jerome Lenssen](https://github.com/JLenssen)
+
+Maintaining VTT related parts of the HPC module
+
+## [Nicolla Lo Gullo](https://github.com/nicolalogullo)
 
 Proof of concept and first demonstrations
 

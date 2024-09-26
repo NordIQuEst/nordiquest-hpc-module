@@ -144,12 +144,12 @@ function nqrun () {
 
   # check required variables
   if [ ${#quantum_computers[@]} -eq 0 ]; then 
-    echo "at least one quantum computer e.g. qal9000 should be specified";
+    echo "at least one quantum computer e.g. 'qal9000' or 'helmi' should be specified";
     exit 1;
   fi
 
   if [ -z "$py_script_path" ]; then
-    echo "the last argument should be the path to the python script";
+    echo "the last argument should be the path to the Python script";
     exit 1;
   fi
 
@@ -177,7 +177,7 @@ function nqrun () {
   # path to bash script wrapper around the python script
   bash_script="${py_script_path%%\.py}$(date +%s).sh";
 
-  # prepare the python environment in which sciript is
+  # prepare the python environment in which script is
   function prepare_python_env () {
     # conditionally loading python module
     if [ -n "$python_module" ]; then
@@ -193,7 +193,7 @@ function nqrun () {
       pip install -r $requirements_file;
     else
       # install the default required packages
-      pip install tergite qiskit-iqm qiskit;
+      pip install tergite qiskit;
     fi
 
   }

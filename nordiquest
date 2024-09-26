@@ -101,6 +101,7 @@ set-function	nqrun {
         python_env="$source_code_dir/nqenv";
     fi;
     bash_script="${py_script_path%%\.py}$(date +%s).sh";
+
     function prepare_python_env () 
     { 
         if [ -n "$python_module" ]; then
@@ -111,9 +112,18 @@ set-function	nqrun {
         if [ -n "$requirements_file" ]; then
             pip install -r $requirements_file;
         else
-            pip install tergite qiskit-iqm qiskit;
+            if [[ "${quantum_computers[@]}" =~ "qal9000" ]]; then
+                pip install tergite qiskit;
+            elif [[ "${quantum_computers[@]}" =~ "helmi" ]]; then
+                pip install qiskit-iqm==13.15 qiskit==0.46.3;
+            else
+                echo "Unknown quantum computer. Installing default packages.";
+                # FIXME: this makes no sense if there is a dependency conflict (one env per QC?)
+                pip install tergite qiskit-iqm==13.15 qiskit==0.46.3;
+            fi
         fi
     };
+
     function generate_bash_script () 
     { 
         echo "#!/bin/bash" >> $bash_script;
@@ -121,13 +131,14 @@ set-function	nqrun {
         do
             echo "export $env_var;" >> $bash_script;
         done;
-        echo "python $py_script_path;" >> $bash_script;
+        echo "python3 $py_script_path;" >> $bash_script;
         for env_pair in "${env_vars[@]}";
         do
             env_key="${env_pair%%=*}";
             echo "unset $env_key;" >> $bash_script;
         done
     };
+
     function cleanup () 
     { 
         if $should_delete_venv; then
@@ -136,6 +147,7 @@ set-function	nqrun {
         fi;
         rm $bash_script
     };
+
     prepare_python_env;
     generate_bash_script;
     chmod +x $bash_script;

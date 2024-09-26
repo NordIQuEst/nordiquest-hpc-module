@@ -26,20 +26,20 @@ git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
 
 ```shell
 cd nordiquest-hpc-module
-mkdir -p /global/D1/homes/YOUR_USERNAME/modulefiles
-cp nordiquest /global/D1/homes/YOUR_USERNAME/modulefiles/nordiquest
-module use --append /global/D1/homes/YOUR_USERNAME/modulefiles
+mkdir -p /global/D1/homes/$(whoami)/modulefiles
+cp nordiquest /global/D1/homes/$(whoami)/modulefiles/nordiquest
+module use --append /global/D1/homes/$(whoami)/modulefiles
 ```
 
-**Note: Replace `YOUR_USERNAME` with your username**
-
-**One other option is to install the module in a projects folder so that it is accessible for multiple users. Contact <ex3-helpdesk@simula.no>**
+**Note: One other option is to install the module in a projects folder so that it is accessible for multiple users. Contact <ex3-helpdesk@simula.no>**
 
 - Load the module
 
 ```shell
 module load nordiquest
 ```
+
+### Running on QAL9000
 
 - Create (or upload) a sample script: `quantum_example.py` in your ex3 data folder.
 
@@ -108,7 +108,7 @@ while result is None:
 result.get_counts()
 ```
 
-- Run an HPC-quantum-computer python script
+- Run an HPC-quantum-computer Python script
 
 ```shell
 nqrun \
@@ -123,9 +123,24 @@ nqrun \
   quantum_example.py
 ```
 
-**Dont forget to update `YOUR_USERNAME` to your ex3 username**
-
 - Enter the QAL 9000 API token when it requests for one and wait for the job complete
+
+**Note:** The requirements path is optional. The module will select the right qiskit version based on the selected quantum computer.
+
+### Running on Helmi
+
+To run on VTT's 5-qubit quantum computer called "Helmi", you can run the following command:
+
+```shell
+nqrun \
+  --env QX_URL="https://qc.vtt.fi/qx/api/devices/helmi" \
+  --quantum-computer helmi \
+  --virtual-env D1/newenv \
+  --python python-3.8.16 \
+  -p armq -N 1 -n 256 --pty \
+  examples/helmi_example.py
+```
+
 
 ## API
 
