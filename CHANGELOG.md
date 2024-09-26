@@ -16,3 +16,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 ### Changed
 
 ### Fixed
+
+- Import of `qiskit_iqm` library in `sample.py` fixture
+- Fix the `qiskit_iqm` library version to `13.15` which is currently support by VTT quantum computers
