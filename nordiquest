@@ -111,7 +111,7 @@ set-function	nqrun {
         if [ -n "$requirements_file" ]; then
             pip install -r $requirements_file;
         else
-            pip install tergite qiskit-iqm qiskit;
+            pip install "tergite>=2024.9.1" qiskit-iqm;
         fi
     };
     function generate_bash_script () 

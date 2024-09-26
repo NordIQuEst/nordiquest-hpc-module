@@ -193,7 +193,7 @@ function nqrun () {
       pip install -r $requirements_file;
     else
       # install the default required packages
-      pip install tergite qiskit-iqm qiskit;
+      pip install "tergite>=2024.9.1" qiskit-iqm;
     fi
 
   }

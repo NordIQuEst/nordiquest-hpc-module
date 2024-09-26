@@ -8,8 +8,12 @@ import tergite
 
 import qiskit
 
-# Don't remove this as it ensures qiskit-iqm is installed
-import qiskit_iqm
+try:
+    # Don't remove this as it ensures qiskit-iqm is installed
+    import qiskit_iqm
+except ModuleNotFoundError:
+    # Don't remove this as it ensures qiskit-iqm is installed
+    import iqm.qiskit_iqm
 
 print(sys.executable)
 print(f"QAL9000_API_URL: {os.environ.get('QAL9000_API_URL')}")

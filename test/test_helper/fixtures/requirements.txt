@@ -1,3 +1,2 @@
-tergite
+tergite>=2024.9.1
 qiskit-iqm
-qiskit
