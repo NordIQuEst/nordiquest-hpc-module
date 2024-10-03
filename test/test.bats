@@ -8,10 +8,25 @@ setup() {
 
   # make the functions in nordiquest script available to tests
   load "$(get_tests_folder)/../nordiquest.sh"
+
+  # stub 'which' for the test that checks for module not in compute node
+  if [ "$BATS_TEST_NUMBER" == "3" ]; then
+    function which () {
+       if [ "$1" == "python" ]; then 
+        echo "non-existent";
+      fi
+    }
+
+    export -f which
+  fi
 }
 
 teardown() {
   : # cleanup
+  # unstub 'which' for the test that checks for module not in compute node
+  if [ "$BATS_TEST_NUMBER" == "3" ]; then
+    unset -f which
+  fi
 }
 
 get_tests_folder() {
@@ -75,6 +90,27 @@ QAL9000_SERVICE_NAME: lami
 POLL_TIMEOUT: 500
 HELMI_API_URL: https://helmi.fi
 HELMI_API_TOKEN: $helmi_api_token";
+
+  # deletes the virtual env after running
+  assert_file_not_exist "D1/nqenv/bin/python";
+}
+
+@test "nqrun errors when unavailable python module is passed" {
+  py_script="$(get_tests_folder)/test_helper/fixtures/sample.py";
+  requirements_txt="$(get_tests_folder)/test_helper/fixtures/requirements.txt";
+  api_token="other-token";
+  
+  run nqrun \
+    --env QAL9000_API_URL="https://example.com" \
+    --env QAL9000_SERVICE_NAME="lami" \
+    --env POLL_TIMEOUT=5400 \
+    -qc qal9000\
+    --python python-3.7.4\
+    --requirements $requirements_txt \
+    -p armq -N 1 -n 512 --pty \
+    $py_script <<< "$api_token";
+
+  assert_output --partial "no python available, probably the compute node does not have module python-3.7.4."
 
   # deletes the virtual env after running
   assert_file_not_exist "D1/nqenv/bin/python";
@@ -164,9 +200,6 @@ POLL_TIMEOUT: 500";
 }
 
 @test "nqrun errors when no script is passed" {
-  py_script="$(get_tests_folder)/test_helper/fixtures/sample.py";
-  requirements_txt="$(get_tests_folder)/test_helper/fixtures/requirements.txt";
-  
   run nqrun -qc qal9000 <<< "";
 
   assert_output "the last argument should be the path to the python script"
@@ -176,9 +209,6 @@ POLL_TIMEOUT: 500";
 }
 
 @test "nqrun errors when no quantum computer is passed" {
-  py_script="$(get_tests_folder)/test_helper/fixtures/sample.py";
-  requirements_txt="$(get_tests_folder)/test_helper/fixtures/requirements.txt";
-  
   run nqrun <<< "";
 
   assert_output "at least one quantum computer e.g. qal9000 should be specified"
@@ -189,7 +219,6 @@ POLL_TIMEOUT: 500";
 
 @test "can run python script without requirements file" {
   py_script="$(get_tests_folder)/test_helper/fixtures/sample.py";
-  requirements_txt="$(get_tests_folder)/test_helper/fixtures/requirements.txt";
   api_token="new-token";
   
   run nqrun\
