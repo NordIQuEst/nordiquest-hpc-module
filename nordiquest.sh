@@ -184,16 +184,15 @@ function nqrun () {
       module load $python_module;
     fi
 
-    # creating and activate virtual environment
+    # creating virtual environment
     python -m venv "$python_env";
-    source "$python_env/bin/activate";
 
     # installing packages in python virtual environment
     if [ -n "$requirements_file" ]; then
-      pip install -r $requirements_file;
+      "$python_env/bin/pip" install -r $requirements_file;
     else
       # install the default required packages
-      pip install "tergite>=2024.9.1" qiskit-iqm;
+      "$python_env/bin/pip" install "tergite>=2024.9.1" qiskit-iqm;
     fi
 
   }
@@ -207,6 +206,12 @@ function nqrun () {
     for env_var in "${env_vars[@]}"; do
       echo "export $env_var;" >> $bash_script;
     done
+
+    # activate the environment
+    echo "source $python_env/bin/activate" >> $bash_script;
+
+    no_python_msg="no python available, probably the compute node does not have module $python_module."
+    echo "if [[ \"\$(which python)\" == *$python_env/bin/python ]]; then echo 'virtual env activated.'; else echo '$no_python_msg'; exit 1; fi" >> $bash_script;
 
     # running python script
     echo "python $py_script_path;" >> $bash_script;
@@ -228,6 +233,11 @@ function nqrun () {
     
     # deleting bash script after?
     rm $bash_script;
+
+    # unload the python module
+    if [ -n "$python_module" ]; then
+      module unload $python_module;
+    fi
   }
 
   # Run
