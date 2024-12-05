@@ -117,11 +117,126 @@ nqrun \
   --virtual-env D1/newenv \
   --requirements requirements.txt \
   --python python-3.7.4 \
-  -p armq -N 1 -n 256 --pty \
+  -p armq -N 1 --pty \
   quantum_example.py
 ```
 
-**Note that the python module you pass must also exist in the compute module or else it will fail**
+- Enter the QAL 9000 API token when it requests for one and wait for the job complete
+
+## Quick Start (LUMI)
+
+- You need to have an account with [LUMI](https://www.lumi.csc.fi/) for you to move forward with these steps
+
+- Login to the LUMI.
+
+```shell
+ssh -i <path-to-private-key> <username>@lumi.csc.fi
+```
+
+- Or you can use the [shell in LUMI's web interface](https://docs.lumi-supercomputer.eu/runjobs/webui/#shell).
+
+- Clone the repository
+
+```shell
+git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
+```
+
+- Install the module
+
+```shell
+cd nordiquest-hpc-module
+module use nordiquest-hpc-module/
+```
+
+- Load the module
+
+```shell
+module load nordiquest
+```
+
+- Create (or upload) a sample script: `quantum_example.py`.
+
+```python
+# quantum_example.py
+"""A sample script doing a very simple quantum operation"""
+import time
+import os
+
+import qiskit.circuit as circuit
+import qiskit.compiler as compiler
+
+from tergite.qiskit.providers import Job, Tergite
+from tergite.qiskit.providers.provider_account import ProviderAccount
+
+
+# the Tergite API URL
+API_URL = os.environ.get("QAL9000_API_URL", default="https://api.qal9000.se")
+# The name of the Quantum Computer to use from the available quantum computers
+BACKEND_NAME = "loke"
+# the application token for logging in
+API_TOKEN = os.environ.get("QAL9000_API_TOKEN")
+# the name of this service. For your own bookkeeping.
+SERVICE_NAME = os.environ.get("QAL9000_SERVICE_NAME", default="local")
+# the timeout in seconds for how long to keep checking for results
+POLL_TIMEOUT = int(os.environ.get("POLL_TIMEOUT", default="100"))
+
+# create the Qiskit circuit
+qc = circuit.QuantumCircuit(1)
+qc.x(0)
+qc.h(0)
+qc.measure_all()
+
+# create a provider
+# provider account creation can be skipped in case you already saved
+# your provider account to the `~/.qiskit/tergiterc` file.
+# See below how that is done.
+account = ProviderAccount(service_name=SERVICE_NAME, url=API_URL, token=API_TOKEN)
+provider = Tergite.use_provider_account(account)
+# to save this account to the `~/.qiskit/tergiterc` file, add the `save=True`
+# provider = Tergite.use_provider_account(account, save=True)
+# Get the tergite backend in case you skipped provider account creation
+# provider = Tergite.get_provider(service_name=SERVICE_NAME)
+backend = provider.get_backend(BACKEND_NAME)
+backend.set_options(shots=1024)
+
+# compile the circuit
+tc = compiler.transpile(qc, backend=backend)
+
+# run the circuit
+job: Job = backend.run(tc, meas_level=2, meas_return="single")
+
+# view the results
+elapsed_time = 0
+result = None
+while result is None:
+    if elapsed_time > POLL_TIMEOUT:
+        raise TimeoutError(
+            f"result polling timeout {POLL_TIMEOUT} seconds exceeded"
+        )
+
+    time.sleep(1)
+    elapsed_time += 1
+    result = job.result()
+
+result.get_counts()
+```
+
+- Run an HPC-quantum-computer python script
+
+```shell
+nqrun \
+  --env QAL9000_API_URL="https://api.qal9000.se" \
+  --env QAL9000_SERVICE_NAME="lumi" \
+  --env POLL_TIMEOUT=40 \
+  --quantum-computer qal9000 \
+  --python cray-python/3.9.13.1 \
+  --virtual-env nqenv \
+  --account YOUR_LUMI_PROJECT_ID \
+  -p debug -N 1 --time 4 --pty quantum_example.py
+```
+
+**Dont forget to update `YOUR_LUMI_PROJECT_ID` to your LUMI project's ID.**  
+**You can get a list of the projects you are allocated to by running the `lumi-allocations` command**
 
 - Enter the QAL 9000 API token when it requests for one and wait for the job complete
 
@@ -169,12 +284,11 @@ module sh-to-mod bash nordiquest.sh >nordiquest
 
 ## Frequently asked questions
 
-
 - ### How do I check that the python module I want exists in the compute node?
 
 To check if a module is available in the compute module:
 
-Enter the compute node.    
+Enter the compute node.
 
 ```shell
 # enter the compute node e.g. armq
@@ -186,7 +300,6 @@ List the available python modules. Does your module appear in the list?
 ```shell
 module avail python
 ```
-
 
 ## Authors
 

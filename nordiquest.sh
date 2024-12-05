@@ -172,6 +172,7 @@ function nqrun () {
   # important variables
   # ----
   if [ -z "$python_env" ]; then 
+    mkdir -p "$source_code_dir";
     python_env="$source_code_dir/nqenv";
   fi
   # path to bash script wrapper around the python script
