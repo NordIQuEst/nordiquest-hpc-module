@@ -98,6 +98,7 @@ set-function	nqrun {
         printf "\n";
     done;
     if [ -z "$python_env" ]; then
+        mkdir -p "$source_code_dir";
         python_env="$source_code_dir/nqenv";
     fi;
     bash_script="${py_script_path%%\.py}$(date +%s).sh";
