@@ -52,6 +52,11 @@ function module () {
         echo "$2 module loaded";
         return 0
         ;;
+      unload)
+        echo "$2 module unloaded";
+        return 0
+        ;;
     esac
   done
 }
+

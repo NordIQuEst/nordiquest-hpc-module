@@ -26,12 +26,10 @@ git clone https://github.com/NordIQuEst/nordiquest-hpc-module.git
 
 ```shell
 cd nordiquest-hpc-module
-mkdir -p /global/D1/homes/YOUR_USERNAME/modulefiles
-cp nordiquest /global/D1/homes/YOUR_USERNAME/modulefiles/nordiquest
-module use --append /global/D1/homes/YOUR_USERNAME/modulefiles
+mkdir -p /global/D1/homes/$(whoami)/modulefiles
+cp nordiquest /global/D1/homes/$(whoami)/modulefiles/nordiquest
+module use --append /global/D1/homes/$(whoami)/modulefiles
 ```
-
-**Note: Replace `YOUR_USERNAME` with your username**
 
 **One other option is to install the module in a projects folder so that it is accessible for multiple users. Contact <ex3-helpdesk@simula.no>**
 
@@ -282,6 +280,25 @@ git clone --recurse-submodules https://github.com/NordIQuEst/nordiquest-hpc-modu
 ```shell
 cd nordiquest-hpc-module
 module sh-to-mod bash nordiquest.sh >nordiquest
+```
+
+## Frequently asked questions
+
+- ### How do I check that the python module I want exists in the compute node?
+
+To check if a module is available in the compute module:
+
+Enter the compute node.
+
+```shell
+# enter the compute node e.g. armq
+srun -p armq -N 1 -n 256 --pty /bin/bash
+```
+
+List the available python modules. Does your module appear in the list?
+
+```shell
+module avail python
 ```
 
 ## Authors
